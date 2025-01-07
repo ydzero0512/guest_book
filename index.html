@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>방명록</title>
+    <style>
+      @font-face {
+        font-family: "RixMomsBlanketR";
+        src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/RixMomsBlanketR.woff2")
+          format("woff2");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      body {
+        font-family: "RixMomsBlanketR";
+        margin: 20px;
+        background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(220, 219, 219, 0.1);
+      }
+      textarea {
+        width: 95%;
+        height: 80px;
+        margin-bottom: 10px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: none;
+      }
+      button {
+        display: block;
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #00a1b9;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #008ba1;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+      }
+      li {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f2f4f4;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        word-wrap: break-word;
+      }
+      .profile {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 10px;
+        border: 1px solid #ddd;
+      }
+      .profile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .text {
+        flex: 1;
+      }
+
+      /* 반응형 디자인 */
+      @media (max-width: 768px) {
+        body {
+          margin: 10px;
+        }
+        .container {
+          padding: 15px;
+        }
+        textarea {
+          font-size: 14px;
+        }
+        button {
+          font-size: 14px;
+        }
+        li {
+          font-size: 14px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        textarea {
+          height: 60px;
+        }
+        button {
+          padding: 8px;
+        }
+        li {
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🍀</h1>
+      <h2>방명록을 남겨주세요..</h2>
+      <!-- 방명록 입력칸 -->
+      <textarea id="guestInput" placeholder="댓글을 써주세요.."></textarea>
+      <button id="addButton">추가</button>
+      <hr />
+      <!-- 방명록 리스트 -->
+      <ul id="guestList"></ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const input = document.getElementById("guestInput");
+      const list = document.getElementById("guestList");
+      const addButton = document.getElementById("addButton");
+
+      let isEnterPressed = false; // 엔터키 중복 방지 플래그
+
+      // 입력 처리 이벤트 (Enter 키로만 처리)
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault(); // Enter 키로 줄바꿈 방지
+
+          if (!isEnterPressed) {
+            // 중복 호출 방지
+            isEnterPressed = true;
+            addGuestEntry(); // 방명록 추가
+
+            // 잠시 후 플래그 리셋 (0.1초 후)
+            setTimeout(() => {
+              isEnterPressed = false;
+            }, 100);
+          }
+        }
+      });
+
+      // 버튼 클릭 이벤트
+      addButton.addEventListener("click", function () {
+        addGuestEntry(); // 방명록 추가
+      });
+
+      // 방명록 추가 함수
+      async function addGuestEntry() {
+        let text = input.value.trim(); // 공백 제거
+
+        if (!text) {
+          alert("내용을 입력하세요!");
+          return;
+        }
+
+        // 줄바꿈을 공백으로 변환 (여러 줄을 입력한 경우)
+        text = text.replace(/\n/g, " ");
+        try {
+          const response = await axios.post("/guest/write", {
+            text: text, // JSON 형식의 데이터 전송
+          });
+
+          // 새 글을 리스트 맨 앞에 추가
+          const newEntry = response.data; // 서버에서 새 글 데이터를 받는다고 가정
+          console.log(response);
+          addNewEntryToList(newEntry);
+        } catch (error) {
+          console.error("서버 요청 중 에러가 발생했습니다:", error);
+        }
+        input.value = ""; // 입력 초기화
+      }
+
+      // 새 방명록 항목을 리스트의 맨 앞에 추가하는 함수
+      function addNewEntryToList(entry) {
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `
+          <div class="profile">
+            <img src="https://cdn-icons-png.flaticon.com/128/621/621699.png" alt="Profile Picture">
+          </div>
+          <div class="text">${entry.text}</div>
+          <div class="date">${entry.date}</div>
+        `;
+        list.insertBefore(listItem, list.firstChild); // 맨 앞에 추가
+      }
+
+      // 페이지 로드 시 방명록 목록 가져오기
+      window.onload = async function () {
+        try {
+          const response = await axios.get("/guest/list");
+          const guestEntries = response.data;
+
+          // 가져온 방명록을 리스트에 추가
+          guestEntries.forEach((entry) => {
+            addNewEntryToList(entry);
+          });
+        } catch (error) {
+          console.error(
+            "방명록 목록을 가져오는 중 에러가 발생했습니다:",
+            error
+          );
+        }
+      };
+    </script>
+  </body>
+</html>
