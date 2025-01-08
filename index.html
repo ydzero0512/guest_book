@@ -48,6 +48,7 @@
       h3,
       h4 {
         text-align: left;
+        margin: 15px;
       }
 
       .sticker-wall {
@@ -127,7 +128,7 @@
         padding: 20px;
         border-radius: 8px;
         text-align: center;
-        width: 90%;
+        width: 70%;
         max-width: 400px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         animation: fadeIn 0.3s ease-out;
@@ -404,30 +405,44 @@
         stickerDiv.style.top = sticker.y;
 
         stickerDiv.innerHTML = `
-        <div class="text">${sticker.text}</div>
-        <div class="date">${sticker.date}</div>
-      `;
+    <div class="text">${sticker.text}</div>
+    <div class="date">${sticker.date}</div>
+  `;
 
-        stickerDiv.addEventListener("mousedown", (e) => {
+        const dragStart = (e) => {
           const sticker = e.target.closest(".sticker");
-          const offsetX = e.clientX - sticker.offsetLeft;
-          const offsetY = e.clientY - sticker.offsetTop;
+          const offsetX =
+            (e.clientX || e.touches[0].clientX) - sticker.offsetLeft;
+          const offsetY =
+            (e.clientY || e.touches[0].clientY) - sticker.offsetTop;
 
-          function moveAt(clientX, clientY) {
+          const moveAt = (clientX, clientY) => {
             sticker.style.left = clientX - offsetX + "px";
             sticker.style.top = clientY - offsetY + "px";
-          }
+          };
 
-          function onMouseMove(e) {
-            moveAt(e.clientX, e.clientY);
-          }
+          const onMove = (e) => {
+            e.preventDefault();
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            moveAt(clientX, clientY);
+          };
 
-          document.addEventListener("mousemove", onMouseMove);
+          const stopDrag = () => {
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("mouseup", stopDrag);
+            document.removeEventListener("touchmove", onMove);
+            document.removeEventListener("touchend", stopDrag);
+          };
 
-          sticker.addEventListener("mouseup", () => {
-            document.removeEventListener("mousemove", onMouseMove);
-          });
-        });
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", stopDrag);
+          document.addEventListener("touchmove", onMove);
+          document.addEventListener("touchend", stopDrag);
+        };
+
+        stickerDiv.addEventListener("mousedown", dragStart);
+        stickerDiv.addEventListener("touchstart", dragStart);
 
         stickerWall.appendChild(stickerDiv);
       }
