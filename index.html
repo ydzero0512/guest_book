@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>방명록</title>
+    <title>ROLLLINGPAPER</title>
     <style>
       @font-face {
         font-family: "RixMomsBlanketR";
@@ -15,204 +19,420 @@
 
       body {
         font-family: "RixMomsBlanketR";
-        margin: 20px;
-        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        background-color: #f0ebeb;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding-bottom: 80px;
       }
+
       .container {
-        max-width: 600px;
-        margin: 0 auto;
+        width: 100%;
+        max-width: 480px;
+        padding: 20px;
+        text-align: center;
+        background: #f7f7f7;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        flex-grow: 1;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+      }
+      h3,
+      h4 {
+        text-align: left;
+      }
+
+      .sticker-wall {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        position: relative;
+        min-height: 300px;
+      }
+      .sticker {
+        position: absolute;
+        width: 150px; /* 포스트잇의 가로 크기 */
+        height: 130px; /* 포스트잇의 세로 크기 */
+        background-color: #ffeb3b; /* 포스트잇 색상 */
+        border-radius: 10px; /* 둥근 모서리 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+        padding: 10px; /* 내부 여백 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-family: "Comic Sans MS", cursive, sans-serif; /* 포스트잇 느낌의 글꼴 */
+        font-size: 14px;
+        text-align: center;
+        cursor: grab; /* 클릭할 때 포인터가 손 모양으로 */
+        transition: transform 0.1s ease-in-out; /* 드래그 시 부드러운 이동 효과 */
+        opacity: 0.9; /* 불투명도 설정 */
+      }
+
+      .sticker .text {
+        flex: 1;
+        overflow-y: auto;
+        word-break: break-word;
+        font-size: 17px;
+        font-weight: bold;
+      }
+
+      .sticker .date {
+        font-size: 12px;
+        text-align: right;
+        color: #888;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #39383a;
+        color: white;
+        border: none;
+        border-radius: 100px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #5f6060;
+      }
+
+      /* 모달 스타일 */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
         background: white;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(220, 219, 219, 0.1);
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease-out;
       }
-      textarea {
-        width: 95%;
-        height: 80px;
+
+      .modal textarea {
+        width: 100%;
+        height: 100px;
         margin-bottom: 10px;
-        padding: 10px;
         font-size: 16px;
         border: 1px solid #ddd;
         border-radius: 4px;
         resize: none;
       }
-      button {
-        display: block;
+
+      .modal button {
         width: 100%;
-        padding: 10px 20px;
-        font-size: 16px;
+        margin-top: 10px;
+      }
+
+      .color-picker {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 10px 0;
+      }
+
+      .color-btn {
+        width: 30px;
+        height: 30px;
+        border: none;
         cursor: pointer;
-        background-color: #00a1b9;
+      }
+
+      .color-btn:focus {
+        outline: 2px solid #000;
+      }
+
+      .no-entries-message {
+        font-size: 18px;
+        color: #888;
+        margin-top: 20px;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* 푸터 버튼 스타일 */
+      .footer-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 500px;
+        padding: 16px;
+        font-size: 18px;
+        background-color: #39383a;
         color: white;
         border: none;
-        border-radius: 4px;
-        transition: background-color 0.3s;
+        border-radius: 50px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
       }
-      button:hover {
-        background-color: #008ba1;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-        margin-top: 20px;
-      }
-      li {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        margin-bottom: 10px;
-        background-color: #f2f4f4;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        word-wrap: break-word;
-      }
-      .profile {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin-right: 10px;
-        border: 1px solid #ddd;
-      }
-      .profile img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      .text {
-        flex: 1;
+
+      .footer-btn:hover {
+        background-color: #5f6060;
       }
 
       /* 반응형 디자인 */
       @media (max-width: 768px) {
-        body {
-          margin: 10px;
-        }
         .container {
-          padding: 15px;
+          padding: 10px;
         }
-        textarea {
-          font-size: 14px;
+        h3 {
+          font-size: 1.2rem;
         }
-        button {
-          font-size: 14px;
+        h4 {
+          font-size: 1rem;
         }
-        li {
-          font-size: 14px;
+        .sticker {
+          max-width: 120px;
+          font-size: 12px;
+        }
+        .footer-btn {
+          font-size: 16px;
         }
       }
 
       @media (max-width: 480px) {
-        textarea {
-          height: 60px;
-        }
-        button {
+        .container {
           padding: 8px;
         }
-        li {
-          font-size: 12px;
+        .sticker {
+          max-width: 100px;
+          font-size: 10px;
+        }
+        .footer-btn {
+          font-size: 14px;
         }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>🍀</h1>
-      <h2>방명록을 남겨주세요..</h2>
-      <!-- 방명록 입력칸 -->
-      <textarea id="guestInput" placeholder="댓글을 써주세요.."></textarea>
-      <button id="addButton">추가</button>
+      <h3>TO.당님</h3>
+      <h4 id="message-count"></h4>
       <hr />
-      <!-- 방명록 리스트 -->
-      <ul id="guestList"></ul>
+      <div class="sticker-wall" id="stickerWall"></div>
     </div>
+
+    <!-- 푸터 버튼 -->
+    <button class="footer-btn" id="openModalButton">
+      <i class="fas fa-pencil-alt"></i> 메모 작성하기
+    </button>
+
+    <!-- 모달 -->
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <textarea id="guestInput" placeholder="메모를 입력하세요"></textarea>
+        <div>
+          <h3>배경 색상 선택</h3>
+          <div class="color-picker">
+            <button
+              class="color-btn"
+              style="background-color: #ece9dd"
+              data-color="#ece9dd"
+            ></button>
+            <button
+              class="color-btn"
+              style="background-color: #ef817f"
+              data-color="#ef817f"
+            ></button>
+            <button
+              class="color-btn"
+              style="background-color: #0fb5de"
+              data-color="#0fb5de"
+            ></button>
+            <button
+              class="color-btn"
+              style="background-color: #88c186"
+              data-color="#88c186"
+            ></button>
+            <button
+              class="color-btn"
+              style="background-color: #ffee55db"
+              data-color="#ffee55db"
+            ></button>
+          </div>
+        </div>
+        <button id="addButton">추가</button>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-      const input = document.getElementById("guestInput");
-      const list = document.getElementById("guestList");
+      const modal = document.getElementById("modal");
+      const openModalButton = document.getElementById("openModalButton");
       const addButton = document.getElementById("addButton");
+      const input = document.getElementById("guestInput");
+      const stickerWall = document.getElementById("stickerWall");
 
-      let isEnterPressed = false; // 엔터키 중복 방지 플래그
+      // 모달 열기
+      openModalButton.addEventListener("click", () => {
+        modal.style.display = "flex";
+      });
 
-      // 입력 처리 이벤트 (Enter 키로만 처리)
-      input.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" && !event.shiftKey) {
-          event.preventDefault(); // Enter 키로 줄바꿈 방지
+      // 모달 닫기
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.style.display = "none";
+        }
+      });
 
-          if (!isEnterPressed) {
-            // 중복 호출 방지
-            isEnterPressed = true;
-            addGuestEntry(); // 방명록 추가
+      // 색상 선택
+      let selectedColor = "#ece9dd";
+      document.querySelectorAll(".color-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedColor = button.dataset.color;
+        });
+      });
 
-            // 잠시 후 플래그 리셋 (0.1초 후)
-            setTimeout(() => {
-              isEnterPressed = false;
-            }, 100);
+      // 메모 추가
+      addButton.addEventListener("click", async () => {
+        const noEntriesMessage = document.querySelector(".no-entries-message");
+        if (noEntriesMessage) {
+          noEntriesMessage.remove();
+        }
+        const text = input.value;
+        if (text.trim() !== "") {
+          const newSticker = {
+            text,
+            color: selectedColor,
+          };
+
+          try {
+            const response = await axios.post("/guest/write", newSticker);
+            input.value = "";
+            modal.style.display = "none";
+            console.log(response.data);
+            addStickerToWall(response.data);
+          } catch (error) {
+            console.error("메모 추가 실패:", error);
           }
         }
       });
 
-      // 버튼 클릭 이벤트
-      addButton.addEventListener("click", function () {
-        addGuestEntry(); // 방명록 추가
-      });
+      let existingPositions = [];
 
-      // 방명록 추가 함수
-      async function addGuestEntry() {
-        let text = input.value.trim(); // 공백 제거
+      function getRandomPosition() {
+        let newX, newY;
+        let overlap = true;
 
-        if (!text) {
-          alert("내용을 입력하세요!");
-          return;
-        }
+        // 겹치지 않는 위치를 찾을 때까지 반복
+        while (overlap) {
+          newX = Math.random() * 80 + "%"; // X 위치 (0~80% 사이)
+          newY = Math.random() * 60 + "%"; // Y 위치 (0~60% 사이)
 
-        // 줄바꿈을 공백으로 변환 (여러 줄을 입력한 경우)
-        text = text.replace(/\n/g, " ");
-        try {
-          const response = await axios.post("/guest/write", {
-            text: text, // JSON 형식의 데이터 전송
+          overlap = existingPositions.some((position) => {
+            // 기존 위치들과 겹치는지 확인
+            return (
+              Math.abs(parseFloat(newX) - parseFloat(position.x)) < 10 &&
+              Math.abs(parseFloat(newY) - parseFloat(position.y)) < 10
+            );
           });
-
-          // 새 글을 리스트 맨 앞에 추가
-          const newEntry = response.data; // 서버에서 새 글 데이터를 받는다고 가정
-          console.log(response);
-          addNewEntryToList(newEntry);
-        } catch (error) {
-          console.error("서버 요청 중 에러가 발생했습니다:", error);
         }
-        input.value = ""; // 입력 초기화
+
+        // 새로운 위치를 배열에 추가
+        existingPositions.push({ x: newX, y: newY });
+        return { x: newX, y: newY };
       }
 
-      // 새 방명록 항목을 리스트의 맨 앞에 추가하는 함수
-      function addNewEntryToList(entry) {
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `
-          <div class="profile">
-            <img src="https://cdn-icons-png.flaticon.com/128/621/621699.png" alt="Profile Picture">
-          </div>
-          <div class="text">${entry.text}</div>
-          <div class="date">${entry.date}</div>
-        `;
-        list.insertBefore(listItem, list.firstChild); // 맨 앞에 추가
-      }
-
-      // 페이지 로드 시 방명록 목록 가져오기
-      window.onload = async function () {
+      async function init() {
         try {
           const response = await axios.get("/guest/list");
-          const guestEntries = response.data;
-
-          // 가져온 방명록을 리스트에 추가
-          guestEntries.forEach((entry) => {
-            addNewEntryToList(entry);
-          });
+          const entries = response.data;
+          const messageElement = document.getElementById("message-count");
+          messageElement.innerHTML = `${entries.length}개의 방명록이 작성됐어요.`;
+          if (entries.length === 0) {
+            const message = document.createElement("div");
+            message.className = "no-entries-message";
+            message.innerHTML =
+              "작성된 방명록이 없습니다.<br><br>첫 번째 방명록을 남겨보세요!💌";
+            stickerWall.appendChild(message);
+          } else {
+            entries.forEach((sticker) => {
+              // 기존 스티커들에 대해 겹치지 않는 위치를 새로 계산하여 추가
+              const position = getRandomPosition();
+              sticker.x = position.x;
+              sticker.y = position.y;
+              addStickerToWall(sticker);
+            });
+          }
         } catch (error) {
-          console.error(
-            "방명록 목록을 가져오는 중 에러가 발생했습니다:",
-            error
-          );
+          console.error("서버 요청 중 에러 발생:", error);
         }
-      };
+      }
+
+      function addStickerToWall(sticker) {
+        const stickerDiv = document.createElement("div");
+        stickerDiv.className = "sticker";
+        stickerDiv.style.backgroundColor = sticker.color;
+        stickerDiv.style.left = sticker.x;
+        stickerDiv.style.top = sticker.y;
+
+        stickerDiv.innerHTML = `
+        <div class="text">${sticker.text}</div>
+        <div class="date">${sticker.date}</div>
+      `;
+
+        stickerDiv.addEventListener("mousedown", (e) => {
+          const sticker = e.target.closest(".sticker");
+          const offsetX = e.clientX - sticker.offsetLeft;
+          const offsetY = e.clientY - sticker.offsetTop;
+
+          function moveAt(clientX, clientY) {
+            sticker.style.left = clientX - offsetX + "px";
+            sticker.style.top = clientY - offsetY + "px";
+          }
+
+          function onMouseMove(e) {
+            moveAt(e.clientX, e.clientY);
+          }
+
+          document.addEventListener("mousemove", onMouseMove);
+
+          sticker.addEventListener("mouseup", () => {
+            document.removeEventListener("mousemove", onMouseMove);
+          });
+        });
+
+        stickerWall.appendChild(stickerDiv);
+      }
+
+      init();
     </script>
   </body>
 </html>

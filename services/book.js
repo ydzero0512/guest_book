@@ -1,7 +1,11 @@
-const { insertGuestBook, readGuestBook } = require("../quries/book.js");
+const {
+  insertGuestBook,
+  readGuestBook,
+  readGuestBookCount,
+} = require("../quries/book.js");
 
-async function postGuestBook(text) {
-  const data = await insertGuestBook(text);
+async function postGuestBook(dto) {
+  const data = await insertGuestBook(dto);
   return data;
 }
 

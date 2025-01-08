@@ -1,19 +1,21 @@
 const { text } = require("express");
 const { pool } = require("./db");
 
-async function insertGuestBook(text) {
+async function insertGuestBook(dto) {
+  const { text, color } = dto;
   let conn;
   let result;
   try {
     conn = await pool.getConnection();
     result = await conn.execute(
       `
-         INSERT INTO guest_book (text) VALUES (?);
+         INSERT INTO guest_book (text, color) VALUES (?, ?);
       `,
-      [text]
+      [text, color]
     );
     const data = {
       text: text,
+      color: color,
       date: new Intl.DateTimeFormat("ko-KR", {
         timeZone: "Asia/Seoul",
         year: "numeric",
@@ -46,7 +48,8 @@ async function readGuestBook() {
       `
            SELECT 
            text, 
-           DATE_FORMAT(date, '%Y. %c. %e. %H:%i') AS date 
+           DATE_FORMAT(date, '%Y. %c. %e. %H:%i') AS date ,
+           color
            FROM guest_book
            ORDER BY id;
         `
@@ -59,7 +62,28 @@ async function readGuestBook() {
   return result;
 }
 
+async function readGuestBookCount() {
+  let conn;
+  let result;
+
+  try {
+    conn = await pool.getConnection();
+    result = await conn.execute(
+      `
+           SELECT count(*) as total
+           FROM guest_book
+        `
+    );
+  } catch (error) {
+    console.error(error);
+  } finally {
+    conn.release();
+  }
+  return result[0][0];
+}
+
 module.exports = {
   insertGuestBook,
   readGuestBook,
+  readGuestBookCount,
 };
