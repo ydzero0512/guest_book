@@ -63,20 +63,20 @@
         justify-content: center;
         margin-top: 20px;
         position: relative;
-        min-height: 300px;
+        min-height: 700px;
       }
       .sticker {
         position: absolute;
         width: 150px; /* 포스트잇의 가로 크기 */
         height: 130px; /* 포스트잇의 세로 크기 */
         background-color: #ffeb3b; /* 포스트잇 색상 */
-        border-radius: 10px; /* 둥근 모서리 */
+        border-radius: 6px; /* 둥근 모서리 */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
         padding: 10px; /* 내부 여백 */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        font-family: "Comic Sans MS", cursive, sans-serif; /* 포스트잇 느낌의 글꼴 */
+        font-family: "RixMomsBlanketR"; /* 포스트잇 느낌의 글꼴 */
         font-size: 14px;
         text-align: center;
         cursor: grab; /* 클릭할 때 포인터가 손 모양으로 */
@@ -89,7 +89,7 @@
         overflow-y: auto;
         word-break: break-word;
         font-size: 17px;
-        font-weight: bold;
+        font-style: italic;
       }
 
       .sticker .date {
@@ -168,8 +168,10 @@
         cursor: pointer;
       }
 
-      .color-btn:focus {
-        outline: 2px solid #000;
+      .color-btn:focus,
+      .color-btn:active {
+        border: 2px solid #000; /* 선택된 경우 보더 색상 */
+        outline: none; /* 기본 outline 제거 */
       }
 
       .no-entries-message {
@@ -257,7 +259,7 @@
 
     <!-- 푸터 버튼 -->
     <button class="footer-btn" id="openModalButton">
-      <i class="fas fa-pencil-alt"></i> 메모 작성하기
+      <i class="fas fa-pencil-alt"></i> 메모 남기기
     </button>
 
     <!-- 모달 -->
@@ -274,13 +276,13 @@
             ></button>
             <button
               class="color-btn"
-              style="background-color: #ef817f"
-              data-color="#ef817f"
+              style="background-color: #f4a6a5"
+              data-color="#f4a6a5"
             ></button>
             <button
               class="color-btn"
-              style="background-color: #0fb5de"
-              data-color="#0fb5de"
+              style="background-color: #7edef6"
+              data-color="#7edef6"
             ></button>
             <button
               class="color-btn"
@@ -402,13 +404,17 @@
         }
       }
 
+      function getRandomAngle() {
+        return Math.random() * 30 - 15; // -15도에서 15도 사이의 랜덤 각도
+      }
+
       function addStickerToWall(sticker) {
         const stickerDiv = document.createElement("div");
         stickerDiv.className = "sticker";
         stickerDiv.style.backgroundColor = sticker.color;
         stickerDiv.style.left = sticker.x;
         stickerDiv.style.top = sticker.y;
-
+        stickerDiv.style.transform = `rotate(${getRandomAngle()}deg)`; // 랜덤 각도 설정
         stickerDiv.innerHTML = `
     <div class="text">${sticker.text}</div>
     <div class="date">${sticker.date}</div>
