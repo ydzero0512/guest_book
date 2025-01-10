@@ -181,6 +181,31 @@
         text-align: center;
         font-weight: bold;
       }
+      /* 헤더 스타일 */
+      .header {
+        display: flex; /* h3와 버튼을 나란히 배치 */
+        justify-content: space-between; /* 양쪽 정렬 */
+        align-items: center; /* 세로 가운데 정렬 */
+        margin-bottom: 10px;
+      }
+
+      /* 공유 버튼 스타일 */
+      .share-btn {
+        width: 20%;
+        margin-right: 10px;
+        background-color: #f2f2f2;
+        color: #272323;
+        border: 2px solid;
+        border-radius: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .share-btn:hover {
+        background-color: #eaeaeb;
+      }
 
       @keyframes fadeIn {
         from {
@@ -251,7 +276,12 @@
   </head>
   <body>
     <div class="container">
-      <h3>TO.당님</h3>
+      <div class="header">
+        <h3>TO.당님</h3>
+        <!-- 공유하기 버튼 -->
+        <button id="share-btn" class="share-btn">공유하기</button>
+      </div>
+
       <h4 id="message-count"></h4>
       <hr />
       <div class="sticker-wall" id="stickerWall"></div>
@@ -459,6 +489,18 @@
       }
 
       init();
+      document.getElementById("share-btn").addEventListener("click", () => {
+        const currentUrl = window.location.href; // 현재 페이지 URL 가져오기
+
+        navigator.clipboard
+          .writeText(currentUrl) // URL을 클립보드에 복사
+          .then(() => {
+            alert("링크가 클립보드에 복사되었습니다!"); // 성공 메시지
+          })
+          .catch((error) => {
+            console.error("링크 복사 실패:", error); // 실패 시 오류 출력
+          });
+      });
     </script>
   </body>
 </html>
