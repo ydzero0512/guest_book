@@ -3,10 +3,8 @@ const { postGuestBook, getGuestBook } = require("../services/book.js");
 
 const router = express.Router();
 router.post("/write", async (req, res) => {
-  const { text } = req.body;
-
   try {
-    const data = await postGuestBook(text);
+    const data = await postGuestBook(req.body);
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
